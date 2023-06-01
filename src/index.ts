@@ -37,16 +37,14 @@ io.on('connection', (socket) => {
     socket.emit('room_data', room);
   });
 
-  socket.on('stories_update', (room: Room) => {
-    console.log('stories_update');
-
+  socket.on('room_update', (room: Room) => {
     const roomToEdit: Room = Object.assign(new Room(), room) as Room;
 
     const editedRoom: Room = editRoom(roomToEdit) || new Room();
 
-    console.log(editedRoom);
+    console.log(editedRoom.timer);
 
-    io.emit('stories_data', editedRoom);
+    io.emit('room_data', editedRoom);
   });
 
   socket.on('disconnect', () => {
