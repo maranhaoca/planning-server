@@ -1,10 +1,5 @@
 import { Room } from '../model/room';
 
-export interface Vote {
-  _id: number;
-  _value: number;
-}
-
 let rooms: Room[] = [];
 
 export function createRoom(newRoom: Room) {
@@ -16,8 +11,6 @@ export function createRoom(newRoom: Room) {
 }
 
 export function getRoom(id: number) {
-  // rooms.forEach((room) => console.log(`Room: ${room.id}`));
-
   return rooms.find((room) => room.id == id);
 }
 

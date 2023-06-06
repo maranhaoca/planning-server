@@ -9,11 +9,18 @@ export function addUser(newUser: User) {
   return users;
 }
 
+export function editUser(editedUser: User) {
+  users = users.filter((user) => user.id != editedUser.id);
+  users = [...users, editedUser];
+
+  return users.find((user) => user.id == editedUser.id);
+}
+
 export function deleteUser(id: number) {
   users = users.filter((user) => user.id != id);
   return users;
 }
 
-export function getUsersbyRoom(roomId: number) {
+export function getUsersBy(roomId: number) {
   return users.filter((user) => user.roomId == roomId);
 }

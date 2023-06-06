@@ -1,10 +1,9 @@
-export interface Vote {
-  id: number;
-  value: number;
-}
+import { Vote } from '../service/vote';
 
 export class Story {
   private _id: number;
+
+  private _roomId: number;
 
   private _title: string;
 
@@ -19,7 +18,8 @@ export class Story {
   private _votes: Vote[];
 
   constructor() {
-    this._id = Date.now();
+    this._id = 0;
+    this._roomId = 0;
     this._title = '';
     this._content = '';
     this._dateAdded = new Date();
@@ -28,6 +28,18 @@ export class Story {
 
   public get id() {
     return this._id;
+  }
+
+  public set id(id: number) {
+    this._id = id;
+  }
+
+  public get roomId() {
+    return this._roomId;
+  }
+
+  public set roomId(roomId: number) {
+    this._roomId = roomId;
   }
 
   public get title() {
