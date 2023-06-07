@@ -12,15 +12,13 @@ export function addUser(newUser: User) {
 export function editUser(editedUser: User) {
   users = users.filter((user) => user.id != editedUser.id);
   users = [...users, editedUser];
-
-  return users.find((user) => user.id == editedUser.id);
 }
 
 export function deleteUser(id: number) {
-  users = users.filter((user) => user.id != id);
+  users = users.filter((user) => user['_id'] != id);
   return users;
 }
 
 export function getUsersBy(roomId: number) {
-  return users.filter((user) => user.roomId == roomId);
+  return users.filter((user) => user['_roomId'] == roomId);
 }

@@ -1,14 +1,9 @@
 import { Room } from './model/room';
 import { Story } from './model/story';
 import { User } from './model/user';
-import { createRoom, getRoom } from './service/room';
-import {
-  createStory,
-  deleteStory,
-  editStory,
-  getStoriesBy,
-} from './service/story';
-import { addUser, deleteUser, editUser, getUsersBy } from './service/user';
+import { createRoom, editRoom, getRoom } from './service/room';
+import { deleteStory, editStory, getStoriesBy } from './service/story';
+import { deleteUser, editUser, getUsersBy } from './service/user';
 import { addVote, getVotesBy, resetVotes } from './service/vote';
 
 const app = require('express')();
@@ -20,7 +15,8 @@ const io = require('socket.io')(server, {
 const PORT = 3000;
 
 io.on('connection', (socket) => {
-  // console.log('Usuário conected!', socket.id);
+  console.log('Usuário conected!', socket.id);
+  socket.join(socket.id);
 
   socket.on('create_room', (room: Room) => {
     const newRoom: Room = Object.assign(new Room(), room) as Room;
@@ -31,7 +27,7 @@ io.on('connection', (socket) => {
   socket.on('create_user', (user: User) => {
     const newUser: User = Object.assign(new User(), user) as User;
 
-    addUser(newUser);
+    editUser(newUser);
 
     socket.emit('redirect');
   });
@@ -46,12 +42,12 @@ io.on('connection', (socket) => {
     socket.emit('room_data', room);
   });
 
-  socket.on('room_update', (room: Story) => {
-    const roomToEdit: Story = Object.assign(new Story(), room) as Story;
+  socket.on('room_update', (room: Room) => {
+    const roomToEdit: Room = Object.assign(new Room(), room) as Room;
 
-    const editedStory: Story = editStory(roomToEdit) || new Story();
+    const editedRoom: Room = editRoom(roomToEdit) || new Room();
 
-    io.emit('room_data', editedStory);
+    io.to(room.id).emit('room_data', editedRoom);
   });
 
   socket.on('story_update', (story: Story) => {
@@ -70,20 +66,21 @@ io.on('connection', (socket) => {
     io.emit('story_update', getStoriesBy(storyToDelete.roomId));
   });
 
+  //TODO: duplicated?
   socket.on('user_update', (user: User) => {
     const userToEdit = Object.assign(new User(), user) as User;
 
     editUser(userToEdit);
 
-    console.log(getUsersBy(user.roomId));
-
-    io.emit('users_update', getUsersBy(user.roomId));
+    io.emit('users_update', getUsersBy(user['_roomId']));
   });
 
-  socket.on('user_delete', (userId: number) => {
+  socket.on('user_delete', (data: number[]) => {
+    const [userId, roomId] = data;
+
     deleteUser(userId);
 
-    io.emit('story_update', getUsersBy(userId));
+    io.emit('users_update', getUsersBy(roomId));
   });
 
   socket.on('card_selected', (data: any) => {
@@ -91,9 +88,10 @@ io.on('connection', (socket) => {
 
     addVote(user, cardIndex, room);
 
-    io.emit('votes_data', getVotesBy(room));
+    io.to(room).emit('votes_data', getVotesBy(room));
   });
 
+  //TODO: duplicated?
   socket.on('toggle_voting', (data: any) => {
     io.emit('voting_changed', data);
   });
@@ -113,7 +111,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    // console.log('User desconected!', socket.id);
+    console.log('User desconected!', socket.id);
   });
 });
 
