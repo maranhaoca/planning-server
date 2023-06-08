@@ -17,7 +17,7 @@ const io = require('socket.io')(server, {
 
 let counter = 0;
 
-io.on('connection', (socket) => {
+io.on('connection', (socket: any) => {
   counter++;
   console.log('Uer conected!', socket.id, counter + ' users');
 

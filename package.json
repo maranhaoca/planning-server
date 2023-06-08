@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
+    "start": "tsc && node ./dist/src/index.js",
     "build": "tsc",
     "dev": "npx ts-node-dev --respawn --transpile-only src/index.ts"
   },
