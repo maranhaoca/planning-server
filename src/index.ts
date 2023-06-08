@@ -6,17 +6,20 @@ import { deleteStory, editStory, getStoriesBy } from './service/story';
 import { deleteUser, editUser, getUsersBy } from './service/user';
 import { addVote, getVotesBy, resetVotes } from './service/vote';
 
+const PORT = process.env.PORT || 3000;
+const ORIGIN = process.env.ORIGIN || 'http://localhost:8000';
+
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
-  cors: { origin: 'http://localhost:8000' },
+  cors: { origin: ORIGIN },
 });
 
-const PORT = 3000;
+let counter = 0;
 
 io.on('connection', (socket) => {
-  console.log('Usuário conected!', socket.id);
-  socket.join(socket.id);
+  counter++;
+  console.log('Uer conected!', socket.id, counter + ' users');
 
   socket.on('create_room', (room: Room) => {
     const newRoom: Room = Object.assign(new Room(), room) as Room;
@@ -33,11 +36,11 @@ io.on('connection', (socket) => {
   });
 
   socket.on('join_room', (data: number[]) => {
-    socket.join(data[1]);
+    socket.join(data[1].toString());
     const users = getUsersBy(data[1]);
     const room = getRoom(data[1]);
 
-    io.emit('users_update', users);
+    io.in(data[1].toString()).emit('users_update', users);
     socket.emit('story_update', getStoriesBy(data[1]));
     socket.emit('room_data', room);
   });
@@ -55,7 +58,12 @@ io.on('connection', (socket) => {
 
     editStory(storyToEdit);
 
-    io.emit('story_update', getStoriesBy(storyToEdit.roomId));
+    console.log(`${story['_roomId']}`);
+
+    io.in(`${story['_roomId']}`).emit(
+      'story_update',
+      getStoriesBy(storyToEdit.roomId)
+    );
   });
 
   socket.on('story_delete', (story: Story) => {
@@ -111,7 +119,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('User desconected!', socket.id);
+    counter--;
+    console.log('User desconected!', socket.id, counter + ' users');
   });
 });
 

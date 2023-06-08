@@ -20,5 +20,7 @@ export function deleteUser(id: number) {
 }
 
 export function getUsersBy(roomId: number) {
-  return users.filter((user) => user['_roomId'] == roomId);
+  return users
+    .filter((user) => user['_roomId'] == roomId)
+    .sort((a, b) => a.id - b.id);
 }

@@ -3,7 +3,9 @@ import { Story } from '../model/story';
 let stories: Story[] = [];
 
 export function getStoriesBy(roomId: number) {
-  return stories.filter((story) => story.roomId == roomId);
+  return stories
+    .filter((story) => story.roomId == roomId)
+    .sort((a, b) => a.id - b.id);
 }
 
 export function editStory(editedStory: Story) {
